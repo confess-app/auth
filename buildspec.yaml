@@ -1,0 +1,15 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+       golang: 1.x
+  pre_build:
+    commands:
+      - go get
+  build:
+    commands:
+      - sh build.sh
+  post_build:
+    commands:
+      - aws lambda update-function-code --function-name auth --zip-file fileb://main.zip
