@@ -1,12 +1,14 @@
 package main
 
 import (
-	auth "auth/internal/handler"
-	"fmt"
+	"auth/internal/handler"
+	"auth/service/mysql"
+	"auth/service/redis"
 	"net/http"
 
-	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+
+	"github.com/aws/aws-lambda-go/events"
 )
 
 const (
@@ -17,8 +19,6 @@ const (
 )
 
 func HandleRequest(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	fmt.Println("method=", req.HTTPMethod)
-	fmt.Println("path=", req.Path)
 	if req.HTTPMethod == http.MethodGet {
 		return events.APIGatewayProxyResponse{
 			Body:       "error: method get not allowed with this url",
@@ -29,7 +29,9 @@ func HandleRequest(req events.APIGatewayProxyRequest) (events.APIGatewayProxyRes
 	resp := events.APIGatewayProxyResponse{}
 	switch req.Path {
 	case RegisterPath:
-		return auth.Register(req.Body)
+		mysql.Init()
+		redis.Init()
+		return handler.Register(req.Body)
 	case VerifyPath:
 	case LoginPath:
 	case LogoutPath:
@@ -45,4 +47,9 @@ func HandleRequest(req events.APIGatewayProxyRequest) (events.APIGatewayProxyRes
 
 func main() {
 	lambda.Start(HandleRequest)
+	// HandleRequest(events.APIGatewayProxyRequest{
+	// 	HTTPMethod: http.MethodPost,
+	// 	Path:       RegisterPath,
+	// 	Body:       "{ \"username\": \"duong\", \"email\": \"duong@gmail.com\", \"password\": \"password_duong\" }",
+	// })
 }
