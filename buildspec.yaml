@@ -13,3 +13,6 @@ phases:
   post_build:
     commands:
       - aws lambda update-function-code --function-name auth --zip-file fileb://main.zip
+      - aws lambda publish-version --function-name auth > res.json
+      - export VERSION=$(jq -r '.Version' res.json)
+      - aws lambda update-alias --function-name auth --function-version $VERSION --name dev
