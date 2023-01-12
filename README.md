@@ -1,4 +1,6 @@
 # Auth serverless for Confess app
+## Description
+- An Authen serverless run on AWS Lambda support for confess app
 ## API
 - Register: register new account and return token for client
 - Login: login to account and return token for client
