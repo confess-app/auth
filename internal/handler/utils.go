@@ -2,6 +2,7 @@ package handler
 
 import (
 	"auth/model"
+	"crypto/sha1"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -20,6 +21,13 @@ func CreateResponse(msg string, code int) (events.APIGatewayProxyResponse, error
 		Body:       msg,
 		StatusCode: code,
 	}, nil
+}
+
+func SHAString(str string) string {
+	hasher := sha1.New()
+	hasher.Write([]byte(str))
+	pwdSHA := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
+	return pwdSHA
 }
 
 // easy encode

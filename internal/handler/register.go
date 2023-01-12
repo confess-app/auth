@@ -3,8 +3,6 @@ package handler
 import (
 	"auth/model"
 	"auth/service/mysql"
-	"crypto/sha1"
-	"encoding/base64"
 	"fmt"
 	"net/http"
 	"net/mail"
@@ -30,9 +28,7 @@ func Register(body string) (events.APIGatewayProxyResponse, error) {
 	if err != nil {
 		return CreateResponse(err.Error(), http.StatusInternalServerError)
 	}
-	hasher := sha1.New()
-	hasher.Write([]byte(data.Password))
-	pwdSHA := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
+	pwdSHA := SHAString(data.Password)
 	userItem := model.User{
 		UserID:   newUserID.String(),
 		Username: data.UserName,
@@ -49,10 +45,7 @@ func Register(body string) (events.APIGatewayProxyResponse, error) {
 	if err != nil {
 		return CreateResponse(err.Error(), http.StatusInternalServerError)
 	}
-	return events.APIGatewayProxyResponse{
-		Body:       token,
-		StatusCode: http.StatusOK,
-	}, nil
+	return CreateResponse(token, http.StatusOK)
 }
 
 func ValidateData(data *RegisterData) (string, int, bool) {

@@ -22,6 +22,7 @@ func Init() {
 		panic(err)
 	}
 	err = Client.AutoMigrate(&model.User{})
+
 	if err != nil {
 		panic(err)
 	}
