@@ -7,10 +7,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"net/mail"
-	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/google/uuid"
@@ -19,7 +17,7 @@ import (
 
 func Register(body string) (events.APIGatewayProxyResponse, error) {
 	fmt.Println("process register")
-	data, err := ParseData(body)
+	data, err := ParseRegisterData(body)
 	if err != nil {
 		fmt.Println(err.Error())
 		return CreateResponse(err.Error(), http.StatusInternalServerError)
@@ -59,54 +57,7 @@ func Register(body string) (events.APIGatewayProxyResponse, error) {
 	}, nil
 }
 
-// easy encode
-func GenerateToken(item *model.User) (string, error) {
-	salt := RandStringRunes(10)
-	b, err := json.Marshal(item)
-	if err != nil {
-		return "", err
-	}
-	sEnc := base64.StdEncoding.EncodeToString([]byte(b))
-	encode1 := salt + sEnc
-	encode2 := base64.StdEncoding.EncodeToString([]byte(encode1))
-	token := encode2 + RandStringRunes(10)
-	return token, nil
-}
-
-func DecodeTokenToUserModel(token string) (*model.User, error) {
-	decode1 := token[0 : len(token)-10]
-	decode2, err := base64.StdEncoding.DecodeString(decode1)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("decode2 done")
-	removeSalt := decode2[0 : len(decode2)-10]
-	finalStr, err := base64.StdEncoding.DecodeString(string(removeSalt))
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("removeSalt done")
-	data := &model.User{}
-	err = json.Unmarshal([]byte(finalStr), &data)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("unmarshal done")
-	return data, nil
-}
-
-var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-func RandStringRunes(n int) string {
-	rand.Seed(time.Now().UnixNano())
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
-	}
-	return string(b)
-}
-
-func ParseData(body string) (*RegisterData, error) {
+func ParseRegisterData(body string) (*RegisterData, error) {
 	err := fastjson.Validate(body)
 	if err != nil {
 		return nil, err
