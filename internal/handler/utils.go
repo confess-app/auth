@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"os"
 	"strconv"
 	"time"
 
@@ -23,7 +24,9 @@ func CreateResponse(msg string, code int) (events.APIGatewayProxyResponse, error
 // easy encode
 func GenerateToken(item *model.User) (string, error) {
 	now := time.Now()
-	expireTime := now.Add(time.Duration(180) * time.Second)
+	ttlStr := os.Getenv("TTL_TOKEN")
+	ttl, _ := strconv.Atoi(ttlStr)
+	expireTime := now.Add(time.Duration(ttl) * time.Second)
 	salt := expireTime.Unix()
 	b, err := json.Marshal(item)
 	if err != nil {
