@@ -1,29 +1,25 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/valyala/fastjson"
 )
 
 func CheckToken(body string) (events.APIGatewayProxyResponse, error) {
-	err := fastjson.Validate(body)
+	data := VerifyData{}
+	err := ParseData(body, &data)
 	if err != nil {
-		return CreateResponse(err.Error(), http.StatusBadRequest)
-	}
-	data := &VerifyData{}
-	err = json.Unmarshal([]byte(body), &data)
-	if err != nil {
-		return CreateResponse(err.Error(), http.StatusBadRequest)
+		fmt.Println(err.Error())
+		return CreateResponse(err.Error(), http.StatusInternalServerError)
 	}
 	_, err = DecodeTokenToUserModel(data.Token)
 	if err != nil {
 		fmt.Println(err.Error())
 		return CreateResponse(err.Error(), http.StatusNotFound)
 	}
+	fmt.Println("check token success")
 	return CreateResponse("success", http.StatusOK)
 }
 

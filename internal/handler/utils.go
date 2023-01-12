@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/valyala/fastjson"
 )
 
 func CreateResponse(msg string, code int) (events.APIGatewayProxyResponse, error) {
@@ -76,4 +77,16 @@ func RandStringRunes(n int) string {
 		b[i] = letterRunes[rand.Intn(len(letterRunes))]
 	}
 	return string(b)
+}
+
+func ParseData(body string, model interface{}) error {
+	err := fastjson.Validate(body)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal([]byte(body), &model)
+	if err != nil {
+		return err
+	}
+	return nil
 }

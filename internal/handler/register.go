@@ -5,24 +5,22 @@ import (
 	"auth/service/mysql"
 	"crypto/sha1"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/mail"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/google/uuid"
-	"github.com/valyala/fastjson"
 )
 
 func Register(body string) (events.APIGatewayProxyResponse, error) {
-	fmt.Println("process register")
-	data, err := ParseRegisterData(body)
+	data := RegisterData{}
+	err := ParseData(body, &data)
 	if err != nil {
 		fmt.Println(err.Error())
 		return CreateResponse(err.Error(), http.StatusInternalServerError)
 	}
-	msg, code, ok := ValidateData(data)
+	msg, code, ok := ValidateData(&data)
 	if !ok {
 		fmt.Println("validate data failed: " + msg)
 		return CreateResponse(msg, code)
@@ -55,19 +53,6 @@ func Register(body string) (events.APIGatewayProxyResponse, error) {
 		Body:       token,
 		StatusCode: http.StatusOK,
 	}, nil
-}
-
-func ParseRegisterData(body string) (*RegisterData, error) {
-	err := fastjson.Validate(body)
-	if err != nil {
-		return nil, err
-	}
-	data := RegisterData{}
-	err = json.Unmarshal([]byte(body), &data)
-	if err != nil {
-		return nil, err
-	}
-	return &data, nil
 }
 
 func ValidateData(data *RegisterData) (string, int, bool) {
