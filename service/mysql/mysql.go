@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"auth/model"
+	"fmt"
 	"os"
 
 	"gorm.io/driver/mysql"
@@ -43,4 +44,16 @@ func QueryUserByEmail(email string) (*model.User, error) {
 func Save(user *model.User) error {
 	Client.Table(TableName).Save(user)
 	return nil
+}
+
+func Close() {
+	db, err := Client.DB()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	err = db.Close()
+	if err != nil {
+		fmt.Println("cannot close connection: ", err.Error())
+	}
+	fmt.Println("connection closed")
 }

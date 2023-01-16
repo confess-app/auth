@@ -27,12 +27,13 @@ func HandleRequest(req events.APIGatewayProxyRequest) (events.APIGatewayProxyRes
 	switch req.Path {
 	case RegisterPath:
 		mysql.Init()
-		// redis.Init()
+		defer mysql.Close()
 		return handler.Register(req.Body)
 	case CheckToken:
 		return handler.CheckToken(req.Body)
 	case LoginPath:
 		mysql.Init()
+		defer mysql.Close()
 		return handler.Login(req.Body)
 	case LogoutPath:
 		return events.APIGatewayProxyResponse{
