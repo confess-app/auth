@@ -45,7 +45,13 @@ func Register(body string) (events.APIGatewayProxyResponse, error) {
 	if err != nil {
 		return CreateResponse(err.Error(), http.StatusInternalServerError)
 	}
-	return CreateResponse(token, http.StatusOK)
+	return events.APIGatewayProxyResponse{
+		Body:       token,
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Set-Cookie": fmt.Sprintf("token=%s", token),
+		},
+	}, nil
 }
 
 func ValidateData(data *RegisterData) (string, int, bool) {

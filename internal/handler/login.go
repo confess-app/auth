@@ -34,7 +34,13 @@ func Login(body string) (events.APIGatewayProxyResponse, error) {
 		fmt.Println(err.Error())
 		return CreateResponse(err.Error(), http.StatusInternalServerError)
 	}
-	return CreateResponse(token, http.StatusOK)
+	return events.APIGatewayProxyResponse{
+		Body:       token,
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Set-Cookie": fmt.Sprintf("token=%s", token),
+		},
+	}, nil
 }
 
 type LoginData struct {
